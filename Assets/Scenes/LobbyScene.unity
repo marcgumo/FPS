@@ -291,6 +291,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8624898006198331085, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1830292196}
+    - target: {fileID: 8624898006198331085, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: JoinRoom
+      objectReference: {fileID: 0}
+    - target: {fileID: 8624898007007489969, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1830292196}
+    - target: {fileID: 8624898007007489969, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CreateRoom
+      objectReference: {fileID: 0}
     - target: {fileID: 8624898007007489974, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -318,6 +334,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
+--- !u!114 &895974673 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1709940970459544194, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
+  m_PrefabInstance: {fileID: 895974672}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &895974674 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1709940970403395074, guid: 0dd07c2eac3efc6469b1edb0f420566e, type: 3}
+  m_PrefabInstance: {fileID: 895974672}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &929966897
 GameObject:
   m_ObjectHideFlags: 0
@@ -414,6 +452,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bac1305d47bab74c86790b4d254bb42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  createInput: {fileID: 895974674}
+  joinInput: {fileID: 895974673}
 --- !u!4 &1830292197
 Transform:
   m_ObjectHideFlags: 0

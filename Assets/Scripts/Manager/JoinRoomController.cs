@@ -23,4 +23,5 @@ public class JoinRoomController : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.LoadLevel("GameScene");
     }
+
 }
