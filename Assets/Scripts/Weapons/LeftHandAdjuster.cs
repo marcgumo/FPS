@@ -12,9 +12,10 @@ public class LeftHandAdjuster : MonoBehaviour
     private void LateUpdate()
     {
         if (!GetComponentInParent<PhotonView>().IsMine)
-        {
             return;
-        }
+
+        if (GetComponentInParent<WeaponController>().Reloading)
+            return;
 
         leftHandBone.transform.position = leftHandHoldPosition.position;
     }

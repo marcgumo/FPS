@@ -140,7 +140,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 127
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -234,7 +234,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 0
+  sceneViewId: 1
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!114 &1883690496
@@ -557,6 +557,16 @@ MonoBehaviour:
   zoomDuration: 0.15
   mainHandTransform: {fileID: 5662340803783930479}
   offsetHandRotation: {x: 0, y: 4.5, z: -2}
+  reloadTime: 2
+  fireRate: 0.3
+  damage: 10
+  bulletsPerRound: 30
+  totalBullets: 180
+  rayLayerMask:
+    serializedVersion: 2
+    m_Bits: 2147483647
+  impactParticle: {fileID: 947488135204848535, guid: b8381e40719e6434b92f943a6c9375bf, type: 3}
+  impactBloodParticle: {fileID: 2629315510494466023, guid: 1d2f401ffdc07814a8546856ea17323b, type: 3}
 --- !u!114 &735479010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -630,7 +640,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: -4801072233954947497}
   - {fileID: 2004948955}
-  sceneViewId: 0
+  sceneViewId: 2
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!143 &3641685527852506466
@@ -667,6 +677,7 @@ MonoBehaviour:
   runSpeedMove: 6
   jumpForce: 6
   gravity: -14
+  aimingSpeedMove: 2
   groundPosition: {fileID: 5662340803956062910}
   groundCheckRadius: 0.25
   groundLayer:
@@ -2897,6 +2908,18 @@ MonoBehaviour:
   - Type: 9
     SynchronizeType: 1
     Name: doubleJumping
+  - Type: 1
+    SynchronizeType: 0
+    Name: strafeAnimSpeed
+  - Type: 4
+    SynchronizeType: 1
+    Name: aim
+  - Type: 4
+    SynchronizeType: 1
+    Name: shoot
+  - Type: 4
+    SynchronizeType: 1
+    Name: reload
   m_SynchronizeLayers:
   - SynchronizeType: 1
     LayerIndex: 0

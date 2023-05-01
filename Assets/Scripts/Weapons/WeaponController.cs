@@ -32,31 +32,63 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private float reloadTime = 2.0f;
     [SerializeField] private float fireRate = 0.3f;
     [SerializeField] private int damage = 10;
-    [SerializeField] private int bulletPerRound = 30; //Cargador
-    [SerializeField] private int totalBullet = 180;
+    [SerializeField] private int bulletsPerRound = 30; //Cargador
+    [SerializeField] private int totalBullets = 180;
     [SerializeField] private LayerMask rayLayerMask;
     [SerializeField] private GameObject impactParticle;
     [SerializeField] private GameObject impactBloodParticle;
 
-    int bulletInRound;
+    int bulletsInRound;
     bool firing;
     public bool Reloading { get; set; }
     Coroutine ShootingRoutine = null;
 
     PhotonView pView;
 
+    Animator anim;
 
     void Start()
     {
         pView = GetComponentInParent<PhotonView>();
+        anim = GetComponentInParent<Animator>();
+
         StartCoroutine(InitializeValuesLater());
 
-        bulletInRound = bulletPerRound;
+        bulletsInRound = bulletsPerRound;
     }
 
     void Update()
     {
+        if (!pView.IsMine)
+            return;
 
+        if (Input.GetButtonDown("Fire1") && !firing && !Reloading && bulletsInRound > 0)
+        {
+            firing = true;
+            SpawnRaycast();
+            bulletsInRound--;
+            ShootingRoutine = StartCoroutine(ShootBullet());
+        }
+        else if (Input.GetButtonUp("Fire1") || bulletsInRound == 0)
+        {
+            firing = false;
+            StopCoroutine(ShootingRoutine);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R) && !Reloading && bulletsInRound < bulletsPerRound && totalBullets > 0)
+        {
+            Reloading = true;
+            Invoke(nameof(ReloadFinished), reloadTime);
+
+            firing = false;
+            StopCoroutine(ShootingRoutine);
+
+            anim.SetLayerWeight(2, 0.7f);
+        }
+
+        UpdateAnimation();
+
+        GameController.Instance.UIControllerInstance.BulletTextUpdate(bulletsInRound, totalBullets);
     }
 
     private void LateUpdate()
@@ -156,7 +188,7 @@ public class WeaponController : MonoBehaviour
     void InstantiateParticles(RaycastHit raycastHit, GameObject particle, bool connected)
     {
         GameObject tempParticle;
-        
+
         if (connected)
         {
             tempParticle = PhotonNetwork.Instantiate(particle.name, raycastHit.point, Quaternion.LookRotation(raycastHit.normal));
@@ -165,5 +197,69 @@ public class WeaponController : MonoBehaviour
         {
             tempParticle = Instantiate(particle, raycastHit.point, Quaternion.LookRotation(raycastHit.normal));
         }
+    }
+
+    void SpawnRaycast()
+    {
+        RaycastHit raycastHit;
+        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        if (Physics.Raycast(ray, out raycastHit, 1000.0f, rayLayerMask.value))
+        {
+            if (raycastHit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
+            {
+                InstantiateParticles(raycastHit, impactParticle, PhotonNetwork.IsConnected);
+            }
+            else if (raycastHit.transform.gameObject.layer == LayerMask.NameToLayer("Player"))
+            {
+                InstantiateParticles(raycastHit, impactBloodParticle, PhotonNetwork.IsConnected);
+            }
+        }
+    }
+
+    IEnumerator ShootBullet()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(fireRate);
+
+            if (bulletsInRound > 0)
+            {
+                SpawnRaycast();
+                bulletsInRound--;
+            }
+        }
+    }
+
+    void ReloadFinished()
+    {
+        Reloading = false;
+
+        int bulletsToRemove = bulletsPerRound - bulletsInRound;
+
+        if (totalBullets >= bulletsPerRound)
+        {
+            bulletsInRound = bulletsPerRound;
+            totalBullets -= bulletsToRemove;
+        }
+        else if (bulletsToRemove <= totalBullets)
+        {
+            bulletsInRound += bulletsToRemove;
+            totalBullets -= bulletsToRemove;
+        }
+        else
+        {
+            bulletsInRound += totalBullets;
+            totalBullets -= totalBullets;
+        }
+
+        anim.SetLayerWeight(2, 0.4f);
+    }
+
+    void UpdateAnimation()
+    {
+        anim.SetBool("shoot", firing);
+        anim.SetBool("reload", Reloading);
+        anim.SetBool("aim", aiming);
     }
 }
