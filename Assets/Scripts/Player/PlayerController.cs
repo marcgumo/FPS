@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-using UnityEditor.Rendering;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,6 +11,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 6f;
     [SerializeField] private float gravity = -14f;
     bool isRunning;
+
+    [SerializeField] private float aimingSpeedMove = 2.0f;
+    bool isAiming = false;
 
     PhotonView pView;
     float speedMove;
@@ -94,7 +96,13 @@ public class PlayerController : MonoBehaviour
 
         vInput = verticalInput;
 
+        if (isAiming)
+        {
+            vInput *= 0.75f;
+        }
+
         hInput = horizontalInput;
+
         if (horizontalMove.magnitude > 0.1f)
         {
             strafe = true;
@@ -131,17 +139,28 @@ public class PlayerController : MonoBehaviour
         {
             verticalVelocity.y = jumpForce;
             canDoubleJump = false;
+            anim.SetTrigger("doubleJumping");
         }
 
-        if (Input.GetButton("Fire3") && UpdateOnGround())
+        if (Input.GetButton("Fire3") && UpdateOnGround() && !isAiming)
         {
             speedMove = runSpeedMove;
             isRunning = true;
         }
-        else if (!Input.GetButton("Fire3") && UpdateOnGround())
+        else if (!Input.GetButton("Fire3") && UpdateOnGround() && !isAiming)
         {
             speedMove = walkSpeedMove;
             isRunning = false;
+        }
+
+        if (GetComponentInChildren<WeaponController>().aiming)
+        {
+            isAiming = true;
+            speedMove = aimingSpeedMove;
+        }
+        else
+        {
+            isAiming = false;
         }
     }
 
@@ -159,13 +178,13 @@ public class PlayerController : MonoBehaviour
         //strafe
         anim.SetBool("strafe", strafe);
         anim.SetFloat("vertical", vInput, 0.1f, Time.deltaTime);
+        anim.SetFloat("strafeAnimSpeed", isAiming ? 0.75f : 1);
 
         horizontalAnimSmooth = Mathf.Lerp(horizontalAnimSmooth, hInput, 2 * Time.deltaTime);
         anim.SetFloat("horizontal", horizontalAnimSmooth, 0.1f, Time.deltaTime);
 
-        ////jump
-        //anim.SetBool("IsGrounded", UpdateOnGround());
-        //anim.SetBool("IsRunning", isRunning);
+        //jump
+        anim.SetBool("onGround", charControl.isGrounded);
     }
 
     private void OnDrawGizmos()

@@ -24,6 +24,9 @@ public class CameraController : MonoBehaviour
 
     PhotonView pView;
 
+    [Header("Layer Settings")]
+    [SerializeField] private GameObject[] models;
+
     void Start()
     {
         pView = GetComponent<PhotonView>();
@@ -33,8 +36,18 @@ public class CameraController : MonoBehaviour
 
         if(!pView.IsMine)
         {
-            GetComponentInChildren<Camera>().enabled = false;
-            GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = false;
+            //GetComponentInChildren<Camera>().enabled = false;
+            //GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = false;
+
+            transform.GetChild(0).gameObject.SetActive(false);
+
+            for (int i = 0; i < models.Length; i++)
+            {
+                for (int j = 0; j < models[i].transform.childCount; j++)
+                {
+                    models[i].transform.GetChild(j).gameObject.layer = LayerMask.NameToLayer("Default");
+                }
+            }
         }
     }
 

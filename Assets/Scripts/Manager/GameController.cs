@@ -7,6 +7,10 @@ public class GameController : Singleton<GameController>
 {
     [SerializeField] private PlayerManager playerManager;
 
+    [SerializeField] private UIController UIController;
+
+    public UIController UIControllerInstance { get { return UIController; } }
+
     void Start()
     {
         
