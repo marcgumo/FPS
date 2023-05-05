@@ -1,6 +1,7 @@
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WeaponController : MonoBehaviour
@@ -30,13 +31,28 @@ public class WeaponController : MonoBehaviour
 
     [Header("Fire Settings")]
     [SerializeField] private float reloadTime = 2.0f;
-    [SerializeField] private float fireRate = 0.3f;
+    [SerializeField] private float fireRate = 0.15f;
     [SerializeField] private int damage = 10;
     [SerializeField] private int bulletsPerRound = 30; //Cargador
     [SerializeField] private int totalBullets = 180;
     [SerializeField] private LayerMask rayLayerMask;
     [SerializeField] private GameObject impactParticle;
     [SerializeField] private GameObject impactBloodParticle;
+
+    [Header("Recoil Settings")]
+    [SerializeField, Range(0.0f, 1.0f)] private float verticalRecoilAmount = 0.2f;
+    [SerializeField, Range(0.0f, 1.0f)] private float horizontalRecoilAmount = 0.1f;
+    [SerializeField, Range(5.0f, 15.0f)] private float maxVerticalRecoil = 10.0f;
+    [SerializeField] private float horizontalRecoilAmountTop = 2.0f;
+
+    float verticalRecoilTotal;
+    float verticalRecoil;
+    float horizontalRecoil;
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip fireSound;
+    [SerializeField] private AudioClip reloadSound;
+    AudioSource audioSource;
 
     int bulletsInRound;
     bool firing;
@@ -55,6 +71,9 @@ public class WeaponController : MonoBehaviour
         StartCoroutine(InitializeValuesLater());
 
         bulletsInRound = bulletsPerRound;
+
+        verticalRecoil = verticalRecoilAmount;
+        horizontalRecoil = horizontalRecoilAmount;
     }
 
     void Update()
@@ -65,13 +84,16 @@ public class WeaponController : MonoBehaviour
         if (Input.GetButtonDown("Fire1") && !firing && !Reloading && bulletsInRound > 0)
         {
             firing = true;
+
             SpawnRaycast();
             bulletsInRound--;
+
             ShootingRoutine = StartCoroutine(ShootBullet());
         }
         else if (Input.GetButtonUp("Fire1") || bulletsInRound == 0)
         {
             firing = false;
+            verticalRecoilTotal = 0.0f;
             StopCoroutine(ShootingRoutine);
         }
 
@@ -215,6 +237,42 @@ public class WeaponController : MonoBehaviour
                 InstantiateParticles(raycastHit, impactBloodParticle, PhotonNetwork.IsConnected);
             }
         }
+
+        AddRecoil();
+    }
+
+    void AddRecoil()
+    {
+        //save the totat vertical recoil
+        verticalRecoilTotal += verticalRecoil;
+
+        //if total vertical recoil is greater than the max vertical recoil, dont add any more recoil
+        if (verticalRecoilTotal >= maxVerticalRecoil)
+        {
+            verticalRecoilTotal = maxVerticalRecoil;
+            verticalRecoil = horizontalRecoilAmount;
+
+            horizontalRecoil = horizontalRecoilAmountTop;
+
+            print("Maximo recoil");
+        }
+        else if (!Input.GetButton("Fire2"))
+        {
+            verticalRecoil = verticalRecoilAmount;
+            horizontalRecoil = horizontalRecoilAmount;
+        }
+        else
+        {
+            verticalRecoil = verticalRecoilAmount * 0.5f;
+            horizontalRecoil = horizontalRecoilAmount * 0.5f;
+        }
+
+        //add a random positive vertical recoil to the mainCamera parent
+        mainCamera.GetComponentInParent<CameraController>().pitch += Random.Range(
+            -verticalRecoil, verticalRecoilTotal >= maxVerticalRecoil ? verticalRecoil : 0.0f);
+
+        //add a random horizontal recoil to the mainCamera
+        mainCamera.GetComponentInParent<CameraController>().yaw += Random.Range(-horizontalRecoil, horizontalRecoil);
     }
 
     IEnumerator ShootBullet()

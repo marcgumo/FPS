@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -29,6 +31,12 @@ public class PlayerController : MonoBehaviour
 
     bool canDoubleJump;
 
+    [Header("UI Settings")]
+    //canvas object
+    [SerializeField] private GameObject canvasPlayer;
+    [SerializeField] private Image hpBar;
+    [SerializeField] private TextMeshProUGUI usernameText;
+
     CameraController cameraController;
 
     Animator anim;
@@ -50,6 +58,16 @@ public class PlayerController : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
 
         speedMove = walkSpeedMove;
+
+        if (pView.IsMine)
+        {
+            canvasPlayer.SetActive(false);
+        }
+        else
+        {
+            canvasPlayer.SetActive(true);
+            usernameText.text = pView.Owner.NickName;
+        }
     }
 
     void Update()
