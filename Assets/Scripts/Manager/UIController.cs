@@ -12,6 +12,11 @@ public class UIController : MonoBehaviour
     [SerializeField] private Image hpBar;
     [SerializeField] private TextMeshProUGUI bulletsText;
 
+    public void SwitchCrossHairColor(Color color)
+    {
+        crossHair.GetComponent<Image>().color = color;
+    }
+
     public void SwitchCrossHair(bool value)
     {
         crossHair.SetActive(value);

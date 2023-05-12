@@ -9,7 +9,10 @@ public class GameController : Singleton<GameController>
 
     [SerializeField] private UIController UIController;
 
+    GameObject pManager;
+
     public UIController UIControllerInstance { get { return UIController; } }
+    public PlayerManager PlayerManagerInstance { get { return pManager.GetComponent<PlayerManager>(); } }
 
     void Start()
     {
@@ -20,7 +23,7 @@ public class GameController : Singleton<GameController>
     {
         if(PhotonNetwork.IsConnected)
         {
-            PhotonNetwork.Instantiate(playerManager.name, transform.position, Quaternion.identity);
+            pManager = PhotonNetwork.Instantiate(playerManager.name, transform.position, Quaternion.identity);
         }
     }
 }

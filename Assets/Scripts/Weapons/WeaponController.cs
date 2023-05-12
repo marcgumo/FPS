@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.ParticleSystem;
 
 public class WeaponController : MonoBehaviour
 {
@@ -38,6 +39,7 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private LayerMask rayLayerMask;
     [SerializeField] private GameObject impactParticle;
     [SerializeField] private GameObject impactBloodParticle;
+    [SerializeField] private Transform canon;
 
     [Header("Recoil Settings")]
     [SerializeField, Range(0.0f, 1.0f)] private float verticalRecoilAmount = 0.2f;
@@ -166,6 +168,16 @@ public class WeaponController : MonoBehaviour
         InitializeValues();
     }
 
+    //make a function to increment the total bullets
+    public void AddBullets(int amount)
+    {
+        totalBullets += amount;
+
+        if (totalBullets > 180)
+            totalBullets = 180;
+    }
+
+
     void LerpZoomIn()
     {
         if (zoomTimeElapsed < zoomDuration)
@@ -226,6 +238,15 @@ public class WeaponController : MonoBehaviour
         RaycastHit raycastHit;
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Instantiate(impactParticle.name, canon.position, Quaternion.identity);
+        }
+        else
+        {
+            Instantiate(impactParticle, canon.position, Quaternion.identity);
+        }
+
         if (Physics.Raycast(ray, out raycastHit, 1000.0f, rayLayerMask.value))
         {
             if (raycastHit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
@@ -235,6 +256,24 @@ public class WeaponController : MonoBehaviour
             else if (raycastHit.transform.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
                 InstantiateParticles(raycastHit, impactBloodParticle, PhotonNetwork.IsConnected);
+
+                HealthController healthController = raycastHit.transform.gameObject.GetComponent<HealthController>();
+
+                if (healthController != null)
+                {
+                    healthController.TakeDamage(damage);
+                }
+            }
+            else if (raycastHit.transform.gameObject.layer == LayerMask.NameToLayer("Head"))
+            {
+                InstantiateParticles(raycastHit, impactBloodParticle, PhotonNetwork.IsConnected);
+
+                HealthController healthController = raycastHit.transform.gameObject.GetComponentInParent<HealthController>();
+
+                if (healthController != null)
+                {
+                    healthController.TakeDamage(damage * 2);
+                }
             }
         }
 

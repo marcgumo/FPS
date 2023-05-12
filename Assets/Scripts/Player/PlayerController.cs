@@ -66,7 +66,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             canvasPlayer.SetActive(true);
-            usernameText.text = pView.Owner.NickName;
+            usernameText.text = pView?.Owner.NickName;
         }
     }
 
@@ -85,6 +85,8 @@ public class PlayerController : MonoBehaviour
         }
 
         UpdateAnimation();
+
+        UpdateCrosshair();
     }
 
     private void UpdateMovement()
@@ -203,6 +205,62 @@ public class PlayerController : MonoBehaviour
 
         //jump
         anim.SetBool("onGround", charControl.isGrounded);
+    }
+
+    private void UpdateCrosshair()
+    {
+        //make a variable of a layer mask of everything
+        LayerMask everything = ~0;
+
+        RaycastHit raycastHit;
+        Ray ray = cameraController.GetComponentInChildren<Camera>().ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        //if the player is looking to another player, change the color of the crosshair to red, if not change to white
+        if (Physics.Raycast(ray, out raycastHit, 1000, everything))
+        {
+            //print("ESTOY APUNTANDO A UN JUGADOR");
+            if (raycastHit.collider.GetComponent<PhotonView>() != null)
+            {
+                if (raycastHit.collider.GetComponent<PhotonView>().IsMine)
+                {
+                    //print("ESTOY APUNTANDO A MI MISMO");
+                    return;
+                }
+                
+                //print("ESTE JUGADOR TIENE PHOTON VIEW");
+                //call UIController change cross hair color function
+                GameController.Instance.UIControllerInstance.SwitchCrossHairColor(Color.red);
+            }
+            else
+            {
+                //print("NO TIENE TIENE PHOTON VIEW");
+                //call UIController change cross hair color function
+                GameController.Instance.UIControllerInstance.SwitchCrossHairColor(Color.white);
+            }
+        }
+        else
+        {
+            //call UIController change cross hair color function
+            GameController.Instance.UIControllerInstance.SwitchCrossHairColor(Color.white);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.GetComponent<iTakeItem>() != null)
+        {
+            other.GetComponent<iTakeItem>().TakeItem();
+
+            //check if other has coin controller or aid controller
+            if (other.GetComponent<CoinController>() != null)
+            {
+                GetComponentInChildren<WeaponController>().AddBullets(30);
+            }
+            else if (other.GetComponent<AidController>() != null)
+            {
+                GetComponent<HealthController>().TakeDamage(-30);
+            }
+        }
     }
 
     private void OnDrawGizmos()
